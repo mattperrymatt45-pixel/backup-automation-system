@@ -1,2 +1,2 @@
--e flask>=3.0.0
+flask>=3.0.0
 # apscheduler>=3.10.4  # optional: pip install apscheduler for scheduled jobs
