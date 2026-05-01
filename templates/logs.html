@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}— Logs{% endblock %}
+{% block content %}
+
+<div class="page-title">All Logs</div>
+<div class="page-sub">Complete backup and restore history</div>
+
+<div class="card">
+  <div class="card-label">{{ logs|length }} Total Entries</div>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Time</th><th>Job</th><th>Status</th><th>Archive</th><th>Size</th><th>Message</th></tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td style="color:var(--text-dim)">{{ log.id }}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-dim);white-space:nowrap">{{ log.created_at[:16] }}</td>
+        <td><strong>{{ log.job_name }}</strong></td>
+        <td>
+          {% if log.status == 'SUCCESS' %}<span class="badge-success">SUCCESS</span>
+          {% else %}<span class="badge-failed">FAILED</span>{% endif %}
+        </td>
+        <td><code>{{ log.filename or '—' }}</code></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem">{{ log.size_kb ~ ' KB' if log.size_kb else '—' }}</td>
+        <td style="color:var(--text-dim);font-size:0.78rem;max-width:260px;word-break:break-all">{{ log.message or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr class="empty-row"><td colspan="7">No logs yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

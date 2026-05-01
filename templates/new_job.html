@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}— New Job{% endblock %}
+{% block content %}
+
+<div class="page-title">Create Backup Job</div>
+<div class="page-sub">Define a new automated or manual backup job</div>
+
+<div class="card" style="max-width:580px">
+  <div class="card-label">Job Configuration</div>
+  <form method="POST">
+
+    <div class="form-group">
+      <label>Job Name</label>
+      <input type="text" name="job_name" placeholder="e.g. website-daily" required/>
+      <div class="hint">Unique identifier for this backup job</div>
+    </div>
+
+    <div class="form-group">
+      <label>Source Path</label>
+      <input type="text" name="source_path" placeholder="/home/user/projects/myapp" required/>
+      <div class="hint">Absolute path to the folder you want to back up</div>
+    </div>
+
+    <div class="form-group">
+      <label>Backup Destination</label>
+      <input type="text" name="backup_path" placeholder="/home/user/backups" required/>
+      <div class="hint">Where .tar.gz archives will be saved</div>
+    </div>
+
+    <div class="form-group">
+      <label>Schedule</label>
+      <select name="schedule">
+        <option value="manual">Manual only</option>
+        <option value="hourly">Every hour</option>
+        <option value="daily">Every day</option>
+      </select>
+      <div class="hint">Automatic runs use APScheduler in the background</div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button type="submit" class="btn-accent">Create Job</button>
+      <a href="{{ url_for('dashboard') }}" class="btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<!-- Quick tip -->
+<div class="card" style="max-width:580px;border-color:rgba(91,108,255,0.25)">
+  <div class="card-label" style="color:var(--accent2)">Quick Test</div>
+  <p style="font-size:0.83rem;color:var(--text-dim);line-height:1.7;font-family:'JetBrains Mono',monospace">
+    Source path → <strong style="color:var(--text)">backup_system/sources/</strong><br>
+    Backup path → <strong style="color:var(--text)">backup_system/backups/</strong><br>
+    Drop any files into sources/, then hit <strong style="color:var(--accent)">▶ Run</strong> on the dashboard.
+  </p>
+</div>
+
+{% endblock %}

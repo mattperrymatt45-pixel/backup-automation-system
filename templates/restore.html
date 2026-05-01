@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}— Restore{% endblock %}
+{% block content %}
+
+<div class="page-title">Restore Backup</div>
+<div class="page-sub">Select an archive and restore files to a destination</div>
+
+<div class="card" style="max-width:620px">
+  <div class="card-label">Select Backup to Restore</div>
+
+  {% if backups %}
+  <form method="POST">
+    <div class="form-group">
+      <label>Available Backups</label>
+      <select name="log_id" required>
+        {% for b in backups %}
+        <option value="{{ b.id }}">
+          [{{ b.created_at[:16] }}] {{ b.job_name }} — {{ b.filename }} ({{ b.size_kb }} KB)
+        </option>
+        {% endfor %}
+      </select>
+      <div class="hint">Only successful backups are listed</div>
+    </div>
+
+    <div class="form-group">
+      <label>Restore To (optional)</label>
+      <input type="text" name="restore_to" placeholder="Leave blank to restore to original source path"/>
+      <div class="hint">Absolute path. Leave empty to restore to original location.</div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button type="submit" class="btn-accent">↩ Restore</button>
+      <a href="{{ url_for('dashboard') }}" class="btn-ghost">Cancel</a>
+    </div>
+  </form>
+  {% else %}
+  <p style="color:var(--text-dim);font-size:0.85rem;text-align:center;padding:32px 0">
+    No successful backups yet.<br>
+    <a href="{{ url_for('dashboard') }}" style="color:var(--accent)">Run a backup first →</a>
+  </p>
+  {% endif %}
+</div>
+
+<!-- Archive list -->
+{% if backups %}
+<div class="card">
+  <div class="card-label">All Backup Archives</div>
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Job</th><th>Archive File</th><th>Size</th><th>Source</th></tr>
+    </thead>
+    <tbody>
+      {% for b in backups %}
+      <tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--text-dim)">{{ b.created_at[:16] }}</td>
+        <td><strong>{{ b.job_name }}</strong></td>
+        <td><code>{{ b.filename }}</code></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem">{{ b.size_kb }} KB</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-dim)">{{ b.source_path }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}

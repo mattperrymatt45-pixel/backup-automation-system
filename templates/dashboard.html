@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}— Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-title">Dashboard</div>
+<div class="page-sub">All backup jobs and recent activity</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat-box">
+    <div class="stat-val" style="color:var(--accent)">{{ jobs|length }}</div>
+    <div class="stat-key">Total Jobs</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-val" style="color:var(--accent2)">{{ logs|selectattr('status','equalto','SUCCESS')|list|length }}</div>
+    <div class="stat-key">Successful Runs</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-val" style="color:var(--danger)">{{ logs|selectattr('status','equalto','FAILED')|list|length }}</div>
+    <div class="stat-key">Failed Runs</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-val">{{ "%.1f"|format(logs|selectattr('size_kb')|map(attribute='size_kb')|sum) }} KB</div>
+    <div class="stat-key">Total Backed Up</div>
+  </div>
+</div>
+
+<!-- Jobs Table -->
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div class="card-label">Backup Jobs</div>
+    <a href="{{ url_for('new_job') }}" class="btn-accent">+ New Job</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Job Name</th><th>Source</th><th>Destination</th><th>Schedule</th><th>Created</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td style="color:var(--text-dim)">{{ job.id }}</td>
+        <td><strong>{{ job.job_name }}</strong></td>
+        <td><code>{{ job.source_path }}</code></td>
+        <td><code>{{ job.backup_path }}</code></td>
+        <td><span class="badge-manual">{{ job.schedule }}</span></td>
+        <td style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:0.78rem">{{ job.created_at[:16] }}</td>
+        <td style="display:flex;gap:8px;flex-wrap:wrap">
+          <form method="POST" action="{{ url_for('run_job', job_id=job.id) }}">
+            <button type="submit" class="btn-run">▶ Run</button>
+          </form>
+          <form method="POST" action="{{ url_for('delete_job', job_id=job.id) }}" onsubmit="return confirm('Delete this job?')">
+            <button type="submit" class="btn-danger">✕ Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr class="empty-row"><td colspan="7">No jobs yet — create one!</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Recent Logs -->
+<div class="card">
+  <div class="card-label">Recent Activity (last 30)</div>
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Job</th><th>Status</th><th>File</th><th>Size</th><th>Message</th></tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:0.75rem;white-space:nowrap">{{ log.created_at[:16] }}</td>
+        <td><strong>{{ log.job_name }}</strong></td>
+        <td>
+          {% if log.status == 'SUCCESS' %}<span class="badge-success">SUCCESS</span>
+          {% else %}<span class="badge-failed">FAILED</span>{% endif %}
+        </td>
+        <td><code>{{ log.filename or '—' }}</code></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:0.78rem">{{ log.size_kb ~ ' KB' if log.size_kb else '—' }}</td>
+        <td style="color:var(--text-dim);font-size:0.78rem">{{ log.message or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr class="empty-row"><td colspan="6">No activity yet</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
